@@ -49,6 +49,41 @@ Point Service — это веб-приложение для интерактив
    ```
 3. Откройте браузер и перейдите по адресу: http://localhost:8080
 
+### Возможные проблемы при сборке
+
+Если при выполнении `docker compose up -d --build` возникает ошибка подключения к Microsoft Container Registry (MCR), это может быть связано с проблемами сети или DNS. В этом случае:
+
+1. **Попробуйте включить VPN** - часто решает проблемы с доступом к Docker Hub
+2. **Проверьте интернет-соединение** - убедитесь, что есть доступ к внешним ресурсам
+3. **Очистите Docker кэш**:
+   ```sh
+   docker system prune -a
+   ```
+4. **Проверьте настройки прокси** в Docker Desktop (Settings → Resources → Proxies)
+5. **Попробуйте альтернативные теги образов** - измените в `Dockerfile.backend`:
+   ```dockerfile
+   FROM mcr.microsoft.com/dotnet/sdk:6.0-focal AS build
+   # ...
+   FROM mcr.microsoft.com/dotnet/aspnet:6.0-focal AS final
+   ```
+   Или попробуйте другие варианты:
+   ```dockerfile
+   FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
+   # ...
+   FROM mcr.microsoft.com/dotnet/aspnet:6.0-alpine AS final
+   ```
+6. **Используйте альтернативные реестры** - замените `mcr.microsoft.com` на `docker.io/library`:
+   ```dockerfile
+   FROM docker.io/library/dotnet:6.0-sdk AS build
+   # ...
+   FROM docker.io/library/dotnet:6.0-aspnet AS final
+   ```
+
+Ошибка может выглядеть примерно так:
+```
+failed to solve: mcr.microsoft.com/dotnet/sdk:6.0: failed to resolve source metadata
+```
+
 ### Остановка сервисов
 Для остановки и удаления контейнеров выполните:
 ```sh
